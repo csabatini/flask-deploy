@@ -117,28 +117,11 @@ def run_app():
         sudo('supervisorctl start flask_project')
 
 
-def deploy():
+def restart():
     """
-    1. Copy new Flask files
-    2. Restart gunicorn via supervisor
+    1. Restart gunicorn via supervisor
     """
-    with lcd(local_app_dir):
-        local('git add -A')
-        commit_message = prompt("Commit message?")
-        local('git commit -am "{0}"'.format(commit_message))
-        local('git push production master')
-        sudo('supervisorctl restart flask_project')
-
-
-def rollback():
-    """
-    1. Quick rollback in case of error
-    2. Restart gunicorn via supervisor
-    """
-    with lcd(local_app_dir):
-        local('git revert master  --no-edit')
-        local('git push production master')
-        sudo('supervisorctl restart flask_project')
+    sudo('supervisorctl restart flask_project')
 
 
 def status():
