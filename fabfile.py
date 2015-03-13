@@ -33,8 +33,9 @@ def install_requirements():
     sudo('apt-get install -y python')
     sudo('apt-get install -y python-pip')
     sudo('apt-get install -y python-virtualenv')
+    sudo('apt-get install -y python-dev')
+    sudo('apt-get install -y libmysqlclient-dev')
     sudo('apt-get install -y nginx')
-    sudo('apt-get install -y gunicorn')
     sudo('apt-get install -y supervisor')
     sudo('apt-get install -y git')
 
@@ -50,12 +51,12 @@ def install_flask():
     if exists(remote_flask_dir) is False:
         sudo('mkdir ' + remote_flask_dir)
     with lcd(local_app_dir):
+        with cd(remote_flask_dir):
+            put('*', './', use_sudo=True)
         with cd(remote_app_dir):
             sudo('virtualenv env')
             sudo('source env/bin/activate')
-            sudo('pip install Flask==0.10.1')
-        with cd(remote_flask_dir):
-            put('*', './', use_sudo=True)
+            sudo('env/bin/pip install -r flask_project/requirements.txt')
 
 
 def configure_nginx():
