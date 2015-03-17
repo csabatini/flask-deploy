@@ -1,2 +1,5 @@
 #!/bin/sh
-GIT_WORK_TREE=/home/www/flask_project git checkout -f
+export GIT_WORK_TREE=/home/www/flask_project
+echo "Checking out new files and restarting app"
+git checkout -f
+sudo supervisorctl restart flask_project
