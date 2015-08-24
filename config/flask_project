@@ -1,5 +1,29 @@
 server {
-    location / {
-        proxy_pass http://127.0.0.1:8000;
+    # Workaround for multiple nginx conditions:
+    # https://gist.github.com/jrom/1760790
+
+    ## White list dev machine ##
+    if ($remote_addr = 72.198.15.225) {
+        set $flag isdev;
     }
+
+    # Block wget/mozilla/ie/chrome agents
+    if ($http_user_agent ~* (Mozilla|Wget) ) {
+        set $flag "${flag}isbadagent";
+    }
+
+    # Return 403 for bad agent
+    if ($flag = isbadagent) {
+        return 403;
+    }
+    
+    location / {
+    proxy_pass http://127.0.0.1:8000;
+    }
+    location /nginx_status {
+        # Turn on nginx stats
+        stub_status on;
+        # I do not need logs for stats
+        access_log   off;
+   }
 }
