@@ -1,29 +1,16 @@
 server {
-    # Workaround for multiple nginx conditions:
-    # https://gist.github.com/jrom/1760790
 
-    ## White list dev machine ##
-    if ($remote_addr = 72.198.15.225) {
-        set $flag isdev;
-    }
+    listen   80;
 
-    # Block wget/mozilla/ie/chrome agents
-    if ($http_user_agent ~* (Mozilla|Wget) ) {
-        set $flag "${flag}isbadagent";
-    }
+    server_name babynames.slickmobile.us;
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
 
-    # Return 403 for bad agent
-    if ($flag = isbadagent) {
-        return 403;
-    }
-    
     location / {
     proxy_pass http://127.0.0.1:8000;
     }
     location /nginx_status {
-        # Turn on nginx stats
         stub_status on;
-        # I do not need logs for stats
-        access_log   off;
+        access_log   on;
    }
 }

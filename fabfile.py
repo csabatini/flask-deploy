@@ -19,8 +19,8 @@ remote_flask_dir = remote_app_dir + '/flask_project'
 remote_nginx_dir = '/etc/nginx/sites-enabled'
 remote_supervisor_dir = '/etc/supervisor/conf.d'
 
-env.hosts=['root@45.55.176.230']
-env.key_filename =['key/dropletkey20150312.pem']
+env.hosts=['csabatini@babynames.slickmobile.us']
+# env.key_filename =['']
 
 
 #############
@@ -30,6 +30,7 @@ env.key_filename =['key/dropletkey20150312.pem']
 def install_requirements():
     """ Install required packages. """
     sudo('apt-get update')
+    sudo('apt-get install -y upstart-sysv')
     sudo('apt-get install -y python')
     sudo('apt-get install -y python-pip')
     sudo('apt-get install -y python-virtualenv')
