@@ -10,6 +10,7 @@ from fabric.contrib.files import exists
 ### config ###
 ##############
 
+user = 'csabatini'
 local_app_dir = './flask_project'
 local_config_dir = './config'
 
@@ -110,6 +111,7 @@ def configure_git():
                     with cd('hooks'):
                         put('./post-receive', './', use_sudo=True)
                         sudo('chmod +x post-receive')
+        sudo('chown -R ' + user + ':' + user + ' ' + remote_git_dir)
 
 
 def run_app():

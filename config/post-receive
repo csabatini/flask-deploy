@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 export GIT_WORK_TREE=/home/www/flask_project
 echo "Checking out new files and restarting app"
 git checkout -f
