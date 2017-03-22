@@ -5,7 +5,6 @@
 from fabric.api import cd, env, lcd, put, prompt, local, sudo
 from fabric.contrib.files import exists
 
-
 ##############
 ### config ###
 ##############
@@ -16,12 +15,14 @@ local_config_dir = './config'
 
 remote_app_dir = '/home/www'
 remote_git_dir = '/home/git'
+remote_home_dir = '/home/' + user
 remote_flask_dir = remote_app_dir + '/flask_project'
 remote_nginx_dir = '/etc/nginx/sites-enabled'
+remote_logrotate_dir = '/etc/logrotate.d'
 remote_supervisor_dir = '/etc/supervisor/conf.d'
 
-env.hosts=['csabatini@babynames.slickmobile.us']
 # env.key_filename =['']
+env.hosts = ['csabatini@babynames.slickmobile.us']
 
 
 #############
@@ -59,6 +60,10 @@ def install_flask():
             sudo('virtualenv env')
             sudo('source env/bin/activate')
             sudo('env/bin/pip install -r flask_project/requirements.txt')
+    with lcd(local_config_dir):
+        with cd(remote_home_dir):
+            put('activate.sh', './', use_sudo=False)
+            sudo('chmod +x activate.sh')
 
 
 def configure_nginx():
@@ -69,9 +74,10 @@ def configure_nginx():
     4. Copy local config to remote config
     5. Restart nginx
     """
-    sudo('/etc/init.d/nginx start')
     if exists('/etc/nginx/sites-enabled/default'):
         sudo('rm /etc/nginx/sites-enabled/default')
+    if exists('/etc/logrotate.d/nginx'):
+        sudo('rm /etc/logrotate.d/nginx')
     if exists('/etc/nginx/sites-enabled/flask_project') is False:
         sudo('touch /etc/nginx/sites-available/flask_project')
         sudo('ln -s /etc/nginx/sites-available/flask_project' +
@@ -79,6 +85,9 @@ def configure_nginx():
     with lcd(local_config_dir):
         with cd(remote_nginx_dir):
             put('./flask_project', './', use_sudo=True)
+    with lcd(local_config_dir):
+        with cd(remote_logrotate_dir):
+            put('./nginx', './', use_sudo=True)
     sudo('/etc/init.d/nginx restart')
 
 
@@ -125,6 +134,13 @@ def restart():
     1. Restart gunicorn via supervisor
     """
     sudo('supervisorctl restart flask_project')
+
+
+def stop():
+    """
+    1. Stop gunicorn via supervisor
+    """
+    sudo('supervisorctl stop flask_project')
 
 
 def status():
