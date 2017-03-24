@@ -88,7 +88,9 @@ def configure_nginx():
     with lcd(local_config_dir):
         with cd(remote_logrotate_dir):
             put('./nginx', './', use_sudo=True)
-    sudo('/etc/init.d/nginx restart')
+    sudo('/etc/init.d/nginx stop')
+    sudo('rm /var/log/nginx/*')
+    sudo('/etc/init.d/nginx start')
 
 
 def configure_supervisor():
