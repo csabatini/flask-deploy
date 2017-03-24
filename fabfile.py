@@ -9,7 +9,7 @@ from fabric.contrib.files import exists
 ### config ###
 ##############
 
-user = 'csabatini'
+user = 'webapp'
 local_app_dir = './flask_project'
 local_config_dir = './config'
 
@@ -20,9 +20,10 @@ remote_flask_dir = remote_app_dir + '/flask_project'
 remote_nginx_dir = '/etc/nginx/sites-enabled'
 remote_logrotate_dir = '/etc/logrotate.d'
 remote_supervisor_dir = '/etc/supervisor/conf.d'
+remote_chown_cmd = 'chown -R %s:%s /home/' % (user, user)
 
-# env.key_filename =['']
-env.hosts = ['csabatini@babynames.slickmobile.us']
+env.key_filename =['~/.ssh/webapp_rsa']
+env.hosts = ['webapp@babynames.slickmobile.us']
 
 
 #############
@@ -33,6 +34,7 @@ def install_requirements():
     """ Install required packages. """
     sudo('apt-get update')
     sudo('apt-get install -y upstart-sysv')
+    sudo('apt-get install -y dos2unix')
     sudo('apt-get install -y python')
     sudo('apt-get install -y python-pip')
     sudo('apt-get install -y python-virtualenv')
@@ -56,7 +58,8 @@ def install_flask():
     with lcd(local_app_dir):
         with cd(remote_flask_dir):
             put('*', './', use_sudo=True)
-        with cd(remote_app_dir):
+            sudo('find sql/ -type f -exec dos2unix {} \;')
+    with cd(remote_app_dir):
             sudo('virtualenv env')
             sudo('source env/bin/activate')
             sudo('env/bin/pip install -r flask_project/requirements.txt')
@@ -64,6 +67,7 @@ def install_flask():
         with cd(remote_home_dir):
             put('activate.sh', './', use_sudo=False)
             sudo('chmod +x activate.sh')
+    sudo(remote_chown_cmd)
 
 
 def configure_nginx():
@@ -121,8 +125,9 @@ def configure_git():
                 with lcd(local_config_dir):
                     with cd('hooks'):
                         put('./post-receive', './', use_sudo=True)
+                        sudo('dos2unix post-receive')
                         sudo('chmod +x post-receive')
-        sudo('chown -R ' + user + ':' + user + ' ' + remote_git_dir)
+        sudo(remote_chown_cmd)
 
 
 def run_app():
