@@ -62,6 +62,8 @@ def install_flask():
     with cd(remote_app_dir):
             sudo('virtualenv env')
             sudo('source env/bin/activate')
+            sudo('env/bin/pip install --upgrade pip')
+            sudo('env/bin/pip install --upgrade setuptools')
             sudo('env/bin/pip install -r flask_project/requirements.txt')
     with lcd(local_config_dir):
         with cd(remote_home_dir):
