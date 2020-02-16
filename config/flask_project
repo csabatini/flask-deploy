@@ -1,8 +1,12 @@
 server {
 
-    listen   80;
+    listen 443;
 
-    server_name babynames.slickmobile.us;
+    ssl on;
+    ssl_certificate /etc/letsencrypt/live/bernietweets.slickmobile.us/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/bernietweets.slickmobile.us/privkey.pem;
+
+    server_name bernietweets.slickmobile.us;
     access_log /var/log/nginx/access.log;
     error_log /var/log/nginx/error.log;
     underscores_in_headers on;
